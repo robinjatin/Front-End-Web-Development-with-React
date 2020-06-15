@@ -1,41 +1,47 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 import { Breadcrumb, BreadcrumbItem, Card, CardBody, CardHeader, Media } from 'reactstrap';
 import { Link } from 'react-router-dom';
-
-function RenderLeader({leader})
-{
-    return (
-        <Media className="m-2 col-md">
-            <Media left>
-                <Media object src={leader.image} alt={leader.name}></Media>
-            </Media>
-            <Media body className="m-2 col-md">
-                <Media heading >
-                        {leader.name}
-                </Media>
-                <h6>{leader.designation}</h6>
-                
-            {leader.description}
-            </Media>
-        </Media>
-    );
-}
-
+import { baseUrl } from '../shared/baseUrl';
+import { FadeTransform, Fade, Stagger } from 'react-animation-components';
+import { Loading } from './LoadingComponent';
 
 function About(props) {
 
-    const leaders = props.leaders.map((leader) => {
+    function RenderLeader({ leader, isLoading, errMess }) {
+        if (isLoading) {
+            return (
+                <Loading />
+            );
+        }
+        else if (errMess) {
+            return (
+                <h4>{errMess}</h4>
+            );
+        }
         return (
-            // <p>Leader {leader.name}</p>
-            <div className="container">
-            <div className="row">
-                <RenderLeader leader={leader}></RenderLeader>
-            </div>
-            </div>
-        );
-    });
+            <FadeTransform
+                in
+                transformProps={{
+                    exitTransform: 'scale(0.5) translateY(-50%)'
+                }}>
+                <div key={leader.id} className="col-12 mt-5">
+                    <Media tag="li">
+                        <Media left middle>
+                            <Media object src={baseUrl + leader.image} alt={leader.name} />
+                        </Media>
+                        <Media body className="ml-5">
+                            <Media heading>{leader.name}</Media>
+                            <p>{leader.designation}</p>
+                            <p>{leader.description}</p>
+                        </Media>
+                    </Media>
+                </div>
+            </FadeTransform>
 
-    return(
+        );
+    }
+
+    return (
         <div className="container">
             <div className="row">
                 <Breadcrumb>
@@ -45,7 +51,7 @@ function About(props) {
                 <div className="col-12">
                     <h3>About Us</h3>
                     <hr />
-                </div>                
+                </div>
             </div>
             <div className="row row-content">
                 <div className="col-12 col-md-6">
@@ -91,7 +97,9 @@ function About(props) {
                 </div>
                 <div className="col-12">
                     <Media list>
-                        {leaders}
+                        <Stagger in>
+                            {props.leaders == null ? <Fragment /> : props.leaders.map(leader => <RenderLeader leader={leader} />)}
+                        </Stagger>
                     </Media>
                 </div>
             </div>
